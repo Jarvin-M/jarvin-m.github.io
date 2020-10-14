@@ -1,0 +1,161 @@
+I"�U<p><b>Association rule mining</b> is the basis for pattern recognition within multiple applications to find frequent relations, causal structures or correlations between occurrences of data. Common applications of association rule mining are market basket analysis, fraud detection, medical diagnosis, cross-marketing etc. Association guides decision making based on the historical data that exists.</p>
+
+<p>An association rule is represented in the format:</p>
+<ul>
+<li>Antecedent -&gt; Consequent, </li>
+</ul>
+<p>which are defined by the measures of interestingness i.e support and confidence following a given threshold. These established rules can be be categorised as: <b>actionable rules</b>- having relevant insights, <b>trivial rules</b>- known to people with domain knowledge and <b>inexplicable</b>- relationships have no explainable insight and impact.
+There a couple of measures used with regard to the association rules.</p>
+
+<h3>The measures of interestingness</h3>
+
+<p><b>Support</b> is the frequency of the rule within the data. It is given by:</p>
+<ul>
+<li>support(A -&gt; B) = p(A and B) </li>
+</ul>
+
+<p><b>Confidence</b> is the percentage of occurrences containing A which also contain B. Given by:</p>
+<ul>
+<li>confidence(A -&gt; B) = p(B|A) = sup(A,B)/sup(A) </li>
+</ul>
+
+<h3>Apriori algorithm</h3>
+<p>This algorithm relates to associative rule mining from frequent occurrence sets by relying on the downward closure property.</p>
+
+<p>“The Apriori algorithm generates candidates with smaller length k first and counts their supports before generating
+candidates of length \((k+1)\). The resulting frequent k-itemsets are used to restrict the number of \((k + 1)\)-candidates
+with the downward closure property”</p>
+
+<p>This phenomenon restricts the cost for generating frequent patterns or occurrences based on the support threshold defined.</p>
+
+<p><img src="/images/apriori.PNG" alt="RF" style="display:block; margin: 0 auto; width:520px;height:267px" />
+There are other frequent itemset mining algorithms like enumeration tree, recursive growth suffix based pattern growth</p>
+
+<h3>Anti monotone property</h3>
+<p>To implement the anti monotone property while generating the association rules; the following theorem is held on the confidence measure;</p>
+
+<p>“Let \(Y\) be an itemset and \(X\) is a subset of \(Y\) . If a rule \(X \rightarrow Y - X\) does not satisfy the confidence threshold, then any rule 
+\(\tilde{X} \rightarrow Y -\tilde{X}\),where \(\tilde{X}\) is a subset of \(X\), must not satisfy the confidence threshold as well.”</p>
+
+<p>This theorem can be proved by comparing the confidence of the rules \(X \rightarrow Y - X\)  and \(\tilde{X} \rightarrow Y -\tilde{X}\). The confidence of the rules are sup(\(Y\))/sup(\(X\))  and sup(\(Y\))/sup(\(\tilde{X}\)). \(\tilde{X}\) being a subset of \(X\), then sup(\(\tilde{X}\)) \(\geq\) sup(\(X\)), therefore the rule \(\tilde{X} \rightarrow Y -\tilde{X}\) can not have a higher confidence than \(X \rightarrow Y - X\).This is applicable for a given itemset.</p>
+
+<p>This implies that if a certain rule of a given itemset is discarded that it does not meet the minimum confidence threshold, then all the subsets of the antecedent of the particular rule do not need to be explored as they will definitely have a lower confidence. This increases the speed of the program as not all combinations of itemsets do not have to be explored.</p>
+
+<h4>Resources </h4>
+
+<ul>
+    <li>Data Mining by Charu C. Aggarwal</li>
+</ul>
+
+<h4> Code implementation in Matlab </h4>
+
+<figure class="highlight"><pre><code class="language-matlab" data-lang="matlab"><span class="c1">% input parameters: minsup = minimum support, minconf = minimum confidence,</span>
+<span class="c1">% antimonotone = true(to use the property)/ false(ignore the property)</span>
+<span class="k">function</span> <span class="n">rules</span> <span class="o">=</span> <span class="n">associationRules</span><span class="p">(</span><span class="n">minsup</span><span class="p">,</span><span class="n">minconf</span><span class="p">,</span> <span class="n">antimonotone</span><span class="p">)</span>
+    <span class="n">shoppingList</span> <span class="o">=</span> <span class="n">readDataFile</span><span class="p">;</span>
+
+    <span class="n">ntrans</span> <span class="o">=</span> <span class="nb">size</span><span class="p">(</span><span class="n">shoppingList</span><span class="p">,</span><span class="mi">1</span><span class="p">);</span>
+    <span class="n">items</span> <span class="o">=</span> <span class="nb">unique</span><span class="p">([</span><span class="n">shoppingList</span><span class="p">{:}]);</span>
+    <span class="n">nitems</span> <span class="o">=</span> <span class="nb">numel</span><span class="p">(</span><span class="n">items</span><span class="p">);</span>
+
+    <span class="p">[</span><span class="n">tridx</span><span class="p">,</span><span class="n">trlbl</span><span class="p">]</span> <span class="o">=</span> <span class="n">grp2idx</span><span class="p">(</span><span class="n">items</span><span class="p">);</span>
+
+    <span class="c1">% Create the binary matrix</span>
+    <span class="n">dataset</span> <span class="o">=</span> <span class="nb">zeros</span><span class="p">(</span><span class="n">ntrans</span><span class="p">,</span><span class="n">nitems</span><span class="p">);</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="p">:</span><span class="n">ntrans</span>
+       <span class="n">dataset</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="n">tridx</span><span class="p">(</span><span class="nb">ismember</span><span class="p">(</span><span class="n">items</span><span class="p">,</span><span class="n">shoppingList</span><span class="p">{</span><span class="n">i</span><span class="p">})))</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="k">end</span>
+
+    <span class="c1">% Generate frequent items of length 1</span>
+    <span class="nb">support</span><span class="p">{</span><span class="mi">1</span><span class="p">}</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">dataset</span><span class="p">)/</span><span class="n">ntrans</span><span class="p">;</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="nb">find</span><span class="p">(</span><span class="nb">support</span><span class="p">{</span><span class="mi">1</span><span class="p">}</span> <span class="o">&gt;=</span> <span class="n">minsup</span><span class="p">);</span>
+    <span class="n">frequentItems</span><span class="p">{</span><span class="mi">1</span><span class="p">}</span> <span class="o">=</span> <span class="n">tridx</span><span class="p">(</span><span class="n">f</span><span class="p">);</span>
+    <span class="nb">support</span><span class="p">{</span><span class="mi">1</span><span class="p">}</span> <span class="o">=</span> <span class="nb">support</span><span class="p">{</span><span class="mi">1</span><span class="p">}(</span><span class="n">f</span><span class="p">);</span>
+    <span class="c1">% Generate frequent item sets</span>
+    <span class="n">k</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="k">while</span> <span class="n">k</span> <span class="o">&lt;</span> <span class="n">nitems</span> <span class="o">&amp;&amp;</span> <span class="nb">size</span><span class="p">(</span><span class="n">frequentItems</span><span class="p">{</span><span class="n">k</span><span class="p">},</span><span class="mi">1</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span>
+        <span class="c1">% Generate length (k+1) candidate itemsets from length k frequent itemsets</span>
+        <span class="n">frequentItems</span><span class="p">{</span><span class="n">k</span><span class="o">+</span><span class="mi">1</span><span class="p">}</span> <span class="o">=</span> <span class="p">[];</span>
+        <span class="nb">support</span><span class="p">{</span><span class="n">k</span><span class="o">+</span><span class="mi">1</span><span class="p">}</span> <span class="o">=</span> <span class="p">[];</span>
+
+        <span class="c1">% Consider joining possible pairs of item sets</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="p">:</span><span class="nb">size</span><span class="p">(</span><span class="n">frequentItems</span><span class="p">{</span><span class="n">k</span><span class="p">},</span><span class="mi">1</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="o">=</span> <span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">:</span><span class="nb">size</span><span class="p">(</span><span class="n">frequentItems</span><span class="p">{</span><span class="n">k</span><span class="p">},</span><span class="mi">1</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">k</span> <span class="o">==</span> <span class="mi">1</span> <span class="o">||</span> <span class="nb">isequal</span><span class="p">(</span><span class="n">frequentItems</span><span class="p">{</span><span class="n">k</span><span class="p">}(</span><span class="n">i</span><span class="p">,</span><span class="mi">1</span><span class="p">:</span><span class="k">end</span><span class="o">-</span><span class="mi">1</span><span class="p">),</span><span class="n">frequentItems</span><span class="p">{</span><span class="n">k</span><span class="p">}(</span><span class="n">j</span><span class="p">,</span><span class="mi">1</span><span class="p">:</span><span class="k">end</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+                    <span class="n">candidateFrequentItem</span> <span class="o">=</span> <span class="nb">union</span><span class="p">(</span><span class="n">frequentItems</span><span class="p">{</span><span class="n">k</span><span class="p">}(</span><span class="n">i</span><span class="p">,:),</span><span class="n">frequentItems</span><span class="p">{</span><span class="n">k</span><span class="p">}(</span><span class="n">j</span><span class="p">,:));</span>  
+                    <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="nb">ismember</span><span class="p">(</span><span class="nb">nchoosek</span><span class="p">(</span><span class="n">candidateFrequentItem</span><span class="p">,</span><span class="n">k</span><span class="p">),</span><span class="n">frequentItems</span><span class="p">{</span><span class="n">k</span><span class="p">},</span><span class="s1">'rows'</span><span class="p">))</span>                
+                        <span class="n">sup</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="nb">all</span><span class="p">(</span><span class="n">dataset</span><span class="p">(:,</span><span class="n">candidateFrequentItem</span><span class="p">),</span><span class="mi">2</span><span class="p">))/</span><span class="n">ntrans</span><span class="p">;</span>                    
+                        <span class="k">if</span> <span class="n">sup</span> <span class="o">&gt;=</span> <span class="n">minsup</span>
+                            <span class="n">frequentItems</span><span class="p">{</span><span class="n">k</span><span class="o">+</span><span class="mi">1</span><span class="p">}(</span><span class="k">end</span><span class="o">+</span><span class="mi">1</span><span class="p">,:)</span> <span class="o">=</span> <span class="n">candidateFrequentItem</span><span class="p">;</span>
+                            <span class="nb">support</span><span class="p">{</span><span class="n">k</span><span class="o">+</span><span class="mi">1</span><span class="p">}(</span><span class="k">end</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="o">=</span> <span class="n">sup</span><span class="p">;</span>
+                        <span class="k">end</span>
+                    <span class="k">end</span>
+                <span class="k">else</span>
+                    <span class="k">break</span><span class="p">;</span>
+                <span class="k">end</span>            
+            <span class="k">end</span>
+        <span class="k">end</span>         
+        <span class="n">k</span> <span class="o">=</span> <span class="n">k</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="k">end</span>
+
+    <span class="c1">% antimonotone implementation</span>
+    <span class="n">rules</span> <span class="o">=</span> <span class="p">{};</span> <span class="c1">% cell array of extracted rules</span>
+    <span class="n">ct</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span> <span class="c1">% count of the rule generated</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="o">=</span><span class="mi">2</span><span class="p">:</span><span class="nb">length</span><span class="p">(</span><span class="nb">support</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span> <span class="c1">% no association rules for the  first itemset</span>
+        <span class="n">Lset</span> <span class="o">=</span> <span class="n">frequentItems</span><span class="p">{</span><span class="n">i</span><span class="p">};</span>
+        <span class="k">for</span> <span class="n">itemset</span><span class="o">=</span><span class="mi">1</span><span class="p">:</span><span class="nb">size</span><span class="p">(</span><span class="n">Lset</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+            <span class="c1">% specific frequent itemset</span>
+            <span class="n">whichset</span> <span class="o">=</span> <span class="n">Lset</span><span class="p">(</span><span class="n">itemset</span><span class="p">,:);</span> 
+
+            <span class="n">allcombin</span> <span class="o">=</span><span class="p">{};</span> <span class="c1">% all subsets in this itemset</span>
+            <span class="k">for</span> <span class="n">j</span><span class="o">=</span><span class="mi">1</span><span class="p">:(</span><span class="nb">length</span><span class="p">(</span><span class="n">whichset</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="c1">% get combinations of size k-1</span>
+                <span class="n">allsets</span> <span class="o">=</span> <span class="nb">nchoosek</span><span class="p">(</span><span class="n">whichset</span><span class="p">,</span><span class="n">j</span><span class="p">);</span> <span class="c1">%subsets S of whichset of size j</span>
+                <span class="k">for</span> <span class="n">row</span><span class="o">=</span><span class="mi">1</span><span class="p">:</span><span class="nb">size</span><span class="p">(</span><span class="n">allsets</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+                    <span class="n">allcombin</span><span class="p">{</span><span class="k">end</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">}</span> <span class="o">=</span> <span class="n">allsets</span><span class="p">(</span><span class="n">row</span><span class="p">,:);</span>
+                <span class="k">end</span>
+            <span class="k">end</span>
+
+            <span class="n">allcombin</span> <span class="o">=</span> <span class="nb">flip</span><span class="p">(</span><span class="n">allcombin</span><span class="p">);</span>
+            <span class="n">disantecedents</span> <span class="o">=</span> <span class="p">{};</span> <span class="c1">% discarded antecedents for anitmonotone   </span>
+            <span class="c1">%for every non empty subset s of x output the rule S =&gt; I-S</span>
+
+            <span class="k">for</span> <span class="n">f</span><span class="o">=</span><span class="mi">1</span><span class="p">:</span><span class="nb">length</span><span class="p">(</span><span class="n">allcombin</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">antimonotone</span>
+                    <span class="c1">%anti-monotone</span>
+                    <span class="c1">% If a rule S-&gt;(I ?S) does not satisfy the confidence threshold, </span>
+                    <span class="c1">% then any rule S?-&gt; (I ? S?),where S? is a subset of S,</span>
+                    <span class="c1">% must not satisfy the confidence threshold as well</span>
+
+                    <span class="c1">%check if combination is a subset of any of the discarded</span>
+                    <span class="n">occur</span> <span class="o">=</span> <span class="nb">cellfun</span><span class="p">(</span><span class="o">@</span><span class="nb">ismember</span><span class="p">,</span><span class="nb">repmat</span><span class="p">(</span><span class="n">allcombin</span><span class="p">(</span><span class="n">f</span><span class="p">),</span> <span class="nb">size</span><span class="p">(</span><span class="n">disantecedents</span><span class="p">)),</span> <span class="n">disantecedents</span><span class="p">,</span> <span class="s1">'UniformOutput'</span><span class="p">,</span><span class="nb">false</span><span class="p">);</span>
+                    <span class="n">found</span> <span class="o">=</span> <span class="nb">any</span><span class="p">(</span><span class="nb">cellfun</span><span class="p">(</span><span class="o">@</span><span class="nb">all</span><span class="p">,</span> <span class="n">occur</span><span class="p">));</span> <span class="c1">% true or false if any of the combinations is a subset of the </span>
+
+                    <span class="k">if</span> <span class="n">found</span>
+                        <span class="c1">%if allcombination is a subset, then skip to next iteration</span>
+                        <span class="k">continue</span>
+                    <span class="k">end</span>
+                <span class="k">end</span>
+                <span class="n">notsubset</span> <span class="o">=</span> <span class="nb">setdiff</span><span class="p">(</span><span class="n">whichset</span><span class="p">,</span> <span class="n">allcombin</span><span class="p">{</span><span class="n">f</span><span class="p">});</span> <span class="c1">%I-S</span>
+
+                <span class="c1">%extracting the support values</span>
+                <span class="n">whichsupcol</span> <span class="o">=</span> <span class="nb">length</span><span class="p">(</span><span class="n">allcombin</span><span class="p">{</span><span class="n">f</span><span class="p">});</span> <span class="c1">% cell index dependent on size of itemset</span>
+                <span class="n">indexincol</span> <span class="o">=</span> <span class="nb">find</span><span class="p">(</span><span class="nb">ismember</span><span class="p">(</span><span class="n">frequentItems</span><span class="p">{</span><span class="n">whichsupcol</span><span class="p">},</span> <span class="n">allcombin</span><span class="p">{</span><span class="n">f</span><span class="p">},</span><span class="s1">'rows'</span><span class="p">));</span>
+                <span class="n">conf</span> <span class="o">=</span> <span class="nb">support</span><span class="p">{</span><span class="n">i</span><span class="p">}(</span><span class="n">itemset</span><span class="p">)/</span><span class="nb">support</span><span class="p">{</span><span class="n">whichsupcol</span><span class="p">}(</span><span class="n">indexincol</span><span class="p">);</span>
+                <span class="k">if</span> <span class="n">antimonotone</span> <span class="o">&amp;&amp;</span> <span class="n">conf</span> <span class="o">&lt;</span> <span class="n">minconf</span>
+                    <span class="n">disantecedents</span><span class="p">{</span><span class="k">end</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">}</span> <span class="o">=</span> <span class="n">allcombin</span><span class="p">{</span><span class="n">f</span><span class="p">};</span>
+                <span class="k">else</span> <span class="k">if</span> <span class="n">conf</span> <span class="o">&gt;=</span> <span class="n">minconf</span>
+                    <span class="n">rules</span><span class="p">{</span><span class="n">ct</span><span class="p">,</span> <span class="mi">1</span><span class="p">}</span> <span class="o">=</span> <span class="n">items</span><span class="p">(</span><span class="n">allcombin</span><span class="p">{</span><span class="n">f</span><span class="p">});</span>
+                    <span class="n">rules</span><span class="p">{</span><span class="n">ct</span><span class="p">,</span> <span class="mi">2</span><span class="p">}</span> <span class="o">=</span> <span class="n">items</span><span class="p">(</span><span class="n">notsubset</span><span class="p">);</span>
+                    <span class="n">rules</span><span class="p">{</span><span class="n">ct</span><span class="p">,</span> <span class="mi">3</span><span class="p">}</span> <span class="o">=</span> <span class="n">conf</span><span class="p">;</span>
+                    <span class="n">ct</span> <span class="o">=</span> <span class="n">ct</span><span class="o">+</span><span class="mi">1</span><span class="p">;</span>
+                <span class="k">end</span>
+
+            <span class="k">end</span>
+
+
+        <span class="k">end</span>
+    <span class="k">end</span>
+
+<span class="k">end</span></code></pre></figure>
+
+:ET

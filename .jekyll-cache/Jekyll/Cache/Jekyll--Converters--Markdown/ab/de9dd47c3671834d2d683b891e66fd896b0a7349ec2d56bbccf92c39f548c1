@@ -1,0 +1,147 @@
+I"�F<p>Learning with Machines on large multidimensional datasets can be computationally intensive especially if significant batches of data samples are necessary or used for each learning step - as in batch gradient descent for perceptron training. However, if at each learning step, the learning is not differentiable, we end up with an iteration of next to similar steps on the gradient slope which do not significantly say a lot about the learning machine.</p>
+
+<p>Let’s first understand what Gradient descent is, variations of it and how stochastic approximation can come into play. Using a simple explanation given in the Deep Learning Book(Ian Goodfellow et al);</p>
+
+<p>Consider an objective function \(f(x)\) that we want to optimize i.e. minimize or maximise it by altering x. </p>
+
+<p>We obtain its derivative \(f^1(x)\) which gives the slope of \(f(x)\) at point x, thus we can scale a change in input to obtain a corresponding change in output. For examples \(f(x +\in) \sim f(x) + \in f^1(x)\). Therefore, to minimize the function \(f(x)\), we can move small steps in the opposite direction of the derivative \(f^1(x)\). That is basically gradient descent.</p>
+
+<p>The objective function and its derivative values represent crucial parts of the gradient learning ; \(f^1(x) = 0 \), which are referred to as critical or stationary points which provide no information about direction of gradient and these points fall within the following categories;</p>
+<ul>
+    <li>Local minima- refers to a point lower than all neighboring points </li>
+    <li>Local Maxima - refers to a point higher than all neighboring points </li>
+    <li>Saddle points - Neither a maxima or minima </li>
+    <li>Global Minima - is the lowest value of f(x) throughout the input space and it is highly possible for a local minima not to be globally optimum </li>
+</ul>
+<p>Beyond and/or above the local maxima and minima it is not possible to increase and/or decrease the value of \(f(x)\).</p>
+
+<p><img src="/images/criticalpoints.PNG" alt="Critical Points" /></p>
+
+<h3>Gradient Update rule</h3>
+<p>The general Gradient Update rule can be defined as follows;</p>
+
+\[W_{t+1} = w_t - \eta \bigtriangledown E\mid w_t\]
+
+<p>In this case, we consider perceptron learning of weights(Haykin has a great explanation) over \(t\) learning steps and \(E\) is the cost function. Therefore the next weight \(w_{t+1}\) can be estimated by the current \(w_t\) minus a product of the learning rate \(\eta\) and a derivative of the cost function \(E\) w.r.t the weight.</p>
+
+<p>The negative gradient gives the direction of the steepest descent in E.</p>
+
+<p><img src="/images/gradient.PNG" alt="Critical Points" style="display:block; margin: 0 auto" /></p>
+
+<p>Further we will explore the types of gradient descent; Batch which was mentioned earlier and online learning which processes each observation, one at a time, updating the gradient after learning step. Online learning has several advantages over the Batch learning i.e no need to store complete dataset, easy adaptability in cases of changing data and many more.</p>
+
+<p>Learning gradient descent with stochastic approximation is basically online learning but the singular examples are selected randomly with equal probability at each learning update for \(tmax \cdot P\) learning steps(P is the number of observations in the dataset). Therefore the true gradient of the cost function \(E\) is approximated by a single example.</p>
+
+<p>Below are my Matlab code samples that can be refactored into any programming langauge.</p>
+
+<p>sgd.m</p>
+
+<figure class="highlight"><pre><code class="language-matlab" data-lang="matlab"><span class="k">function</span> <span class="p">[</span><span class="n">w1</span><span class="p">,</span><span class="n">w2</span><span class="p">,</span><span class="n">E_cost</span><span class="p">,</span><span class="n">test_error</span><span class="p">]</span> <span class="o">=</span> <span class="n">sgd</span><span class="p">(</span><span class="n">xi</span><span class="p">,</span><span class="n">tau</span><span class="p">,</span> <span class="n">P</span><span class="p">,</span><span class="n">Q</span><span class="p">,</span><span class="n">eta</span><span class="p">,</span><span class="n">tmax</span><span class="p">)</span>
+<span class="c1">% Input</span>
+<span class="c1">% eta - learning rate</span>
+<span class="c1">% P - number of training sets</span>
+<span class="c1">% Q -number of test sets</span>
+<span class="c1">% xi - input vectors 50 x 5000 vector</span>
+<span class="c1">% tau - corresponding labels</span>
+<span class="c1">% eta - learning rate</span>
+<span class="c1">% tmax - number of learning steps</span>
+
+    <span class="c1">% w1 and w2 - N dim vectors of adpative input to hidden networks</span>
+    <span class="c1">%Initialize the weights as independent random vectors with |w1|^2 = 1 and</span>
+    <span class="c1">%|w2|^2 = 1.</span>
+    <span class="n">N</span> <span class="o">=</span> <span class="nb">length</span><span class="p">(</span><span class="n">xi</span><span class="p">(:,</span><span class="mi">1</span><span class="p">));</span>
+    <span class="n">w1</span> <span class="o">=</span> <span class="nb">rand</span><span class="p">(</span><span class="n">N</span><span class="p">,</span><span class="mi">1</span><span class="p">);</span>
+    <span class="n">w1</span> <span class="o">=</span> <span class="n">w1</span><span class="p">/</span><span class="nb">norm</span><span class="p">(</span><span class="n">w1</span><span class="p">);</span>
+    <span class="n">w2</span> <span class="o">=</span> <span class="nb">rand</span><span class="p">(</span><span class="n">N</span><span class="p">,</span><span class="mi">1</span><span class="p">);</span>
+    <span class="n">w2</span> <span class="o">=</span> <span class="n">w2</span><span class="p">/</span><span class="nb">norm</span><span class="p">(</span><span class="n">w2</span><span class="p">);</span>
+
+    <span class="n">E_cost</span> <span class="o">=</span> <span class="nb">zeros</span><span class="p">(</span><span class="n">tmax</span><span class="p">,</span><span class="mi">1</span><span class="p">);</span> <span class="c1">% stores the cost function E(t)</span>
+    <span class="n">test_error</span> <span class="o">=</span> <span class="nb">zeros</span> <span class="p">(</span><span class="n">tmax</span><span class="p">,</span><span class="mi">1</span><span class="p">);</span> <span class="c1">% E_test(t)</span>
+    <span class="c1">% Stochastic gradient descent procedure</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="p">:</span> <span class="n">tmax</span>
+        <span class="k">for</span> <span class="n">example</span> <span class="o">=</span> <span class="mi">1</span><span class="p">:</span><span class="n">P</span>
+            <span class="c1">% In each learning step, select one of the P example randomly</span>
+            <span class="n">index</span> <span class="o">=</span> <span class="nb">randi</span><span class="p">(</span><span class="n">P</span><span class="p">);</span> <span class="c1">% equal probability</span>
+            <span class="c1">%gradient with respect to random input</span>
+            <span class="n">xi_v</span> <span class="o">=</span> <span class="n">xi</span><span class="p">(:,</span><span class="n">index</span><span class="p">);</span>
+            <span class="n">tau_v</span> <span class="o">=</span> <span class="n">tau</span><span class="p">(</span><span class="n">index</span><span class="p">);</span>
+            <span class="n">t1</span> <span class="o">=</span> <span class="nb">dot</span><span class="p">(</span><span class="n">w1</span><span class="p">,</span><span class="n">xi_v</span><span class="p">);</span>
+            <span class="n">t2</span> <span class="o">=</span> <span class="nb">dot</span><span class="p">(</span><span class="n">w2</span><span class="p">,</span><span class="n">xi_v</span><span class="p">);</span>
+            <span class="n">sigma</span> <span class="o">=</span> <span class="nb">tanh</span><span class="p">(</span><span class="n">t1</span><span class="p">)</span> <span class="o">+</span><span class="nb">tanh</span><span class="p">(</span><span class="n">t2</span><span class="p">);</span>
+                        
+            <span class="n">delta1</span> <span class="o">=</span> <span class="p">(</span><span class="n">sigma</span> <span class="o">-</span> <span class="n">tau_v</span><span class="p">)</span><span class="o">*</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="nb">tanh</span><span class="p">(</span><span class="n">t1</span><span class="p">)</span><span class="o">^</span><span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">xi_v</span><span class="p">;</span> <span class="c1">%gradient with w.r.t w1</span>
+            <span class="n">delta2</span> <span class="o">=</span> <span class="p">(</span><span class="n">sigma</span> <span class="o">-</span> <span class="n">tau_v</span><span class="p">)</span><span class="o">*</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="nb">tanh</span><span class="p">(</span><span class="n">t2</span><span class="p">)</span><span class="o">^</span><span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">xi_v</span><span class="p">;</span> <span class="c1">%gradient  with w.r.t w2</span>
+
+            <span class="n">w1</span> <span class="o">=</span> <span class="n">w1</span> <span class="o">-</span> <span class="p">(</span><span class="n">eta</span><span class="o">*</span><span class="n">delta1</span><span class="p">);</span>
+            <span class="n">w2</span> <span class="o">=</span> <span class="n">w2</span> <span class="o">-</span> <span class="p">(</span><span class="n">eta</span><span class="o">*</span><span class="n">delta2</span><span class="p">);</span> 
+        <span class="k">end</span>
+        
+        <span class="c1">%Compute E and Etest after P single randomized steps, not after each individual update</span>
+        <span class="p">[</span><span class="n">E</span><span class="p">,</span><span class="n">E_test</span><span class="p">]</span> <span class="o">=</span> <span class="n">cost</span><span class="p">(</span><span class="n">w1</span><span class="p">,</span><span class="n">w2</span><span class="p">,</span><span class="n">xi</span><span class="p">,</span><span class="n">tau</span><span class="p">,</span><span class="n">P</span><span class="p">,</span><span class="n">Q</span><span class="p">);</span>
+        
+        <span class="n">E_cost</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">=</span> <span class="n">E</span><span class="p">;</span>
+        <span class="n">test_error</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">=</span> <span class="n">E_test</span><span class="p">;</span>
+
+    <span class="k">end</span>
+<span class="k">end</span></code></pre></figure>
+
+<p>cost.m</p>
+
+<figure class="highlight"><pre><code class="language-matlab" data-lang="matlab"><span class="k">function</span> <span class="p">[</span><span class="n">E</span><span class="p">,</span><span class="n">E_test</span><span class="p">]</span> <span class="o">=</span> <span class="n">cost</span><span class="p">(</span><span class="n">w1</span><span class="p">,</span><span class="n">w2</span><span class="p">,</span><span class="n">xi</span><span class="p">,</span><span class="n">tau</span><span class="p">,</span><span class="n">P</span><span class="p">,</span><span class="n">Q</span><span class="p">)</span>
+<span class="c1">%Compute E and Etest after P single randomized steps, not after each individual update. It is</span>
+<span class="c1">%recommended to define a (matlab) function which calculates E and Etest with w1, w2 and the</span>
+<span class="c1">%corresponding data set (inputs and labels) as arguments.</span>
+
+<span class="c1">% input</span>
+<span class="c1">% P - number of training sets</span>
+<span class="c1">% Q - number of test sets - Q -100 or larger</span>
+<span class="c1">% w1 and w2 - weight vectors</span>
+<span class="c1">% xi - input vector 50 X 5000</span>
+<span class="c1">% tau - correpsonding continuos labels</span>
+
+<span class="c1">% E - costfunction</span>
+<span class="c1">%E_test - test/generalization error</span>
+
+<span class="c1">% cost function</span>
+<span class="n">ee_sum</span> <span class="o">=</span><span class="mi">0</span><span class="p">;</span>
+<span class="k">for</span> <span class="n">mu</span><span class="o">=</span> <span class="mi">1</span><span class="p">:</span><span class="n">P</span>
+    <span class="n">xi_mu</span> <span class="o">=</span> <span class="n">xi</span><span class="p">(:,</span><span class="n">mu</span><span class="p">);</span>
+    <span class="n">tau_mu</span> <span class="o">=</span> <span class="n">tau</span><span class="p">(</span><span class="n">mu</span><span class="p">);</span><span class="c1">% label of correspondin xi_mu</span>
+    <span class="n">t1</span> <span class="o">=</span> <span class="nb">dot</span><span class="p">(</span><span class="n">w1</span><span class="p">,</span><span class="n">xi_mu</span><span class="p">);</span>
+    <span class="n">t2</span> <span class="o">=</span> <span class="nb">dot</span><span class="p">(</span><span class="n">w2</span><span class="p">,</span><span class="n">xi_mu</span><span class="p">);</span>
+    <span class="n">sigma</span> <span class="o">=</span> <span class="nb">tanh</span><span class="p">(</span><span class="n">t1</span><span class="p">)</span> <span class="o">+</span><span class="nb">tanh</span><span class="p">(</span><span class="n">t2</span><span class="p">);</span>
+    <span class="n">ee</span> <span class="o">=</span> <span class="p">(</span><span class="n">sigma</span> <span class="o">-</span> <span class="n">tau_mu</span><span class="p">)</span><span class="o">^</span><span class="mi">2</span><span class="p">;</span>
+    <span class="n">ee_sum</span> <span class="o">=</span> <span class="n">ee_sum</span> <span class="o">+</span> <span class="n">ee</span><span class="p">;</span>
+<span class="k">end</span>
+<span class="n">E</span> <span class="o">=</span> <span class="n">ee_sum</span> <span class="p">/(</span><span class="mi">2</span><span class="o">*</span><span class="n">P</span><span class="p">);</span>
+<span class="c1">% test/generalization error</span>
+<span class="n">ee_test</span> <span class="o">=</span><span class="mi">0</span><span class="p">;</span>
+<span class="k">for</span> <span class="n">mu_test</span><span class="o">=</span> <span class="p">(</span><span class="n">P</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span> <span class="n">P</span><span class="o">+</span><span class="n">Q</span>
+    <span class="n">xi_mutest</span> <span class="o">=</span> <span class="n">xi</span><span class="p">(:,</span><span class="n">mu_test</span><span class="p">);</span>
+    <span class="n">tau_mutest</span><span class="o">=</span> <span class="n">tau</span><span class="p">(</span><span class="n">mu_test</span><span class="p">);</span><span class="c1">% label of correspondin xi_mu</span>
+    <span class="n">t11</span> <span class="o">=</span> <span class="nb">dot</span><span class="p">(</span><span class="n">w1</span><span class="p">,</span><span class="n">xi_mutest</span><span class="p">);</span>
+    <span class="n">t22</span> <span class="o">=</span> <span class="nb">dot</span><span class="p">(</span><span class="n">w2</span><span class="p">,</span><span class="n">xi_mutest</span><span class="p">);</span>
+    <span class="n">sigma_test</span> <span class="o">=</span> <span class="nb">tanh</span><span class="p">(</span><span class="n">t11</span><span class="p">)</span> <span class="o">+</span><span class="nb">tanh</span><span class="p">(</span><span class="n">t22</span><span class="p">);</span>
+    <span class="n">ee_t</span> <span class="o">=</span> <span class="p">(</span><span class="n">sigma_test</span> <span class="o">-</span> <span class="n">tau_mutest</span><span class="p">)</span><span class="o">^</span><span class="mi">2</span><span class="p">;</span>
+    
+    <span class="n">ee_test</span> <span class="o">=</span> <span class="n">ee_test</span><span class="o">+</span> <span class="n">ee_t</span><span class="p">;</span>
+<span class="k">end</span>
+<span class="n">E_test</span> <span class="o">=</span> <span class="n">ee_test</span> <span class="p">/</span> <span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">Q</span><span class="p">);</span>
+<span class="k">end</span></code></pre></figure>
+
+<p>The cost function and generalisation error values can be calculated after \(P\) randomised steps to monitor the learning performance. As seen below, we can see plateau states in the cost function after certain learning steps. At these points there isn’t much learning happening therefore the generalisation error will significantly increase. This behavior can also explain poor generalisation and overfitting at the plateau states.</p>
+
+<p><img src="/images/etestvset.jpg" alt="Plateau states" style="display:block; margin: 0 auto; width:450px;height:350px" /></p>
+<p style="text-align:center;">Figure shows plateau states from Stochastic Gradient descent</p>
+
+<p><img src="/images/finalweights.png" alt="Final Weights" style="display:block; margin: 0 auto;width:450px;height:350px" /></p>
+<p style="text-align:center;">Figure shows final weights from Stochastic Gradient descent. The weights signify the importance of the features</p>
+
+<p><b>Further reading/ Reference material</b></p>
+
+<p>-Deep learning by Ian Goodfellow, Yoshua Bengio, Aaron C. Courville</p>
+
+<p>-The Elements of statistical learning by Jerome H. Friedman, Robert Tibshirani, and Trevor Hastie</p>
+
+<p>-Neural networks and learning machines by Simon S. Haykin</p>
+:ET

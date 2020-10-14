@@ -1,0 +1,13 @@
+I"<h4>Overview of my Master Thesis Work. </h4>
+
+<style>
+.responsive-wrap iframe{ max-width: 100%;}
+</style>
+
+<div class="responsive-wrap">
+<!-- this is the embed code provided by Google -->
+  
+<iframe src="https://docs.google.com/presentation/d/e/2PACX-1vRTTIP_Nby56pjdapYDcDRrZZ86MMFsbbYhro4uiF_KnEVZnMcqVwyUtDVLFBX4Pw/embed?start=false&amp;loop=false&amp;delayms=10000" frameborder="0" width="484" height="392" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true"></iframe>
+<!-- Google embed ends -->
+</div>
+:ET

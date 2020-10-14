@@ -1,0 +1,22 @@
+---
+layout: post
+title: "Being an International Student"
+date: 2018-12-22 13:10:24
+image: being_international.jpg
+tags: blog
+
+---
+
+Being an international student is a mix of joy and worry. Joy for the fact that you got into a competitive grad school and being on a great career path. The worries are endless; cultural change, homesickness, horrible weather and the other numerous things every international student goes through. By international, I mean if you have moved a couple of thousands of Kilometers. Being from the same region doesn’t really count :D.
+
+This journey started in October 2017, after choosing not to go to another Grad school for the fact that I wasn't mentally ready and was just a month out of my Bachelor's programme. It was too soon and I doubt I would have lasted had I embarked on it that early. So having let that ship sail, I decided to cast my net wider. Fortunately, I had identified my current University- University of Groningen years ago while still doing my Bachelors. It had great research in the programme I wanted to take - Data Science and Systems Complexity and I saw that as an opportunity to be a part of a well-ranked institution. I embarked on the application journey. I call it a journey because it is indeed one. You never understand it until you go through it especially as an international student coming from a different education system. The journey is a rough one consisting of lots of patience, essays, tests, episodes of imposter syndrome and a continuous cycle of steps. These steps are accompanied by helplessly waiting for emails that may or may not break your dream, hard work and time. It’s very easy to give up and just stick to the norm. After going through this process twice, with the last one being even more intense, I always try to help my friends out knowing how stressful and psychologically taxing the process can be. But, we are here now.
+
+I will skip the processes between the application and getting to the destination. It’s a whole other process. The recurring theme, however, is being on the wait not knowing how things will turn out. Every email notification (even of promotions and all that email junk) gives you an instant anxiety spike. Fast forward, almost 10 months later, August 2018 is when I get to travel abroad to go work on my aspirations and dreams. Arriving at the airport with other wandering new students was the moment of truth, another MSc student is here. I was here, so what next?
+
+Having spent a couple of months here and writing this during the festive rush, it gets nostalgic. You get to appreciate family and friends more. Things we often take for granted because we have not experienced the otherwise like food, warm weather etc.  Being an international student can be tough at first; lots of alone time, making new friends, finding your way around and, generally trying to feel at home. With school, there is pressure to perform(you keep telling yourself, you didn’t travel all the way for nothing). Of Course, there are very few black students, most times, I am the only one in majority of my classes. It’s understandable as it is a European school. You never think of this as you prepare to move abroad but it can be quite uncomfortable at first, getting this gratuitous attention that can make you socially awkward and also lead to self-segregation if not handled right. Well life is a challenge, isn’t it? No matter what part of the world you are.
+
+It can also be highly rewarding because you get to experience and interact with new peoples, new cultures and expand your cosmopolitan landscape and adapting yourself to “being international”.  Being international to me means being open, being willing to share, compromise, and learning. It also makes you appreciate your culture and background more, seeing how rich it is and the privilege of being able to share and expand that. 
+
+I have enjoyed and learnt so much in just a span of months, improved work ethic, self-drive, more efficient scheduling of my day( you realise how much time you were wasting in the past and the lingering procrastination), academic knowledge and much more. The opportunities ahead are endless and I hope to take them by storm as they come. I will also be sharing some occasional academic content(mostly on topics of Neural networks, Machine learning and related scopes) that I find interesting in whatever I will encounter.
+
+<h3>Merry Christmas and Happy New year!!</h3>
